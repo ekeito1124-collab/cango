@@ -40,7 +40,7 @@ export default function Layout() {
   };
 
   return (
-    <div className="app">
+    <div className="app traveler">
       <header className="topbar">
         <Link to={`/${lang}`} className="brand">
           {t('app.name')}

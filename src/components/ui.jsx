@@ -268,10 +268,24 @@ function fmtDateParts(d, lang) {
 }
 
 // 文字数の上限と現在の文字数を表示するテキストエリア
-export function TextArea({ value, onChange, placeholder, max = 1000, rows = 3, label }) {
+export function TextArea({ value, onChange, placeholder, max = 1000, rows = 3, label, onCtrlEnter }) {
   return (
     <div className="textarea-wrap">
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} maxLength={max} rows={rows} aria-label={label || placeholder} />
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          // PC では Ctrl（Mac は ⌘）＋ Enter で送信できる
+          if (onCtrlEnter && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
+            onCtrlEnter();
+          }
+        }}
+        placeholder={placeholder}
+        maxLength={max}
+        rows={rows}
+        aria-label={label || placeholder}
+      />
       <span className={'counter' + (value.length >= max * 0.9 ? ' near' : '')} aria-live="polite">
         {value.length}/{max}
       </span>

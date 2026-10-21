@@ -421,7 +421,7 @@ export default {
   'error.retry': "다시 시도",
   'error.back': "이전 화면으로",
   'privacy.title': "데이터와 번역",
-  'privacy.translationOn': "자동 번역이 켜져 있어요. 가게에 보내는 메시지, 가게의 답장, 가게 정보는 번역을 위해 Anthropic(Claude, 미국)으로 전송돼요.",
+  'privacy.translationOn': "자동 번역이 켜져 있어요. 가게에 보내는 메시지, 가게의 답장, 가게 정보는 번역을 위해 Google(Gemini API, 미국)으로 전송돼요.",
   'privacy.translationOff': "자동 번역은 현재 꺼져 있어요. 메시지는 쓴 그대로 전달되며 번역 서비스로 전송되지 않아요.",
   'privacy.local': "표시 설정과 오늘의 희망 사항은 이 브라우저에만 저장돼요.",
   'reserve.messageNoteOff': "자동 번역이 현재 꺼져 있어 메시지는 쓴 그대로 전달돼요. 알레르기 등 선택 항목은 가게에 일본어로 표시돼요.",

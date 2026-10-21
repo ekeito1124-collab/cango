@@ -421,7 +421,7 @@ export default {
   'error.retry': "重试",
   'error.back': "返回",
   'privacy.title': "数据与翻译",
-  'privacy.translationOn': "自动翻译已开启。您发给店家的消息、店家的回复以及店铺信息会发送至 Anthropic（Claude，美国）进行翻译。",
+  'privacy.translationOn': "自动翻译已开启。您发给店家的消息、店家的回复以及店铺信息会发送至 Google（Gemini API，美国）进行翻译。",
   'privacy.translationOff': "自动翻译目前已关闭。消息将按原文送达，不会发送给任何翻译服务。",
   'privacy.local': "显示设置和今天的需求仅保存在此浏览器中。",
   'reserve.messageNoteOff': "自动翻译目前已关闭，您的消息将按原文送达。过敏等选择项会以日语显示给店家。",

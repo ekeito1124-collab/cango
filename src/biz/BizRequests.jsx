@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, useGuard } from '../lib.js';
 import { JA, jaDate, jaDateTime, jaList } from './labels.js';
 import { BizError } from './BizApp.jsx';
+import { TextArea } from '../components/ui.jsx';
 
 // 日本語の構造化された予約カード（13章）
 export default function BizRequests({ onChange }) {
@@ -37,9 +38,12 @@ export default function BizRequests({ onChange }) {
       </div>
       <BizError error={error} />
       {list && !list.length && <p className="muted">該当する予約はありません。</p>}
-      {list?.map((r) => (
-        <ReservationCard key={r.id} r={r} onUpdate={replace} />
-      ))}
+      {!list && !error && <p className="muted">読み込み中…</p>}
+      <div className="res-grid">
+        {list?.map((r) => (
+          <ReservationCard key={r.id} r={r} onUpdate={replace} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -154,12 +158,11 @@ function ReservationCard({ r, onUpdate }) {
       )}
       {mode && (
         <div className="stack">
-          <textarea
-            rows={3}
+          <TextArea
             value={text}
-            onChange={(e) => setText(e.target.value)}
-            maxLength={1000}
-            placeholder={mode === 'ask' ? '日本語で入力してください。お客様の言語に翻訳して送ります。' : 'お客様へのひとこと（任意・日本語）'}
+            onChange={setText}
+            onCtrlEnter={() => (mode !== 'ask' || text.trim()) && act(mode === 'ask' ? 'messages' : mode, { message: text || undefined })}
+            placeholder={mode === 'ask' ? '日本語で入力してください（Ctrl＋Enter で送信）' : 'お客様へのひとこと（任意・日本語）'}
           />
           {mode === 'ask' && <p className="fine">質問・確認を送っても、予約は確定しません。</p>}
           <div className="row">

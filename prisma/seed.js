@@ -8,7 +8,23 @@ import { addDays, defaultApprovalDeadline, todayJst, weekdayOf } from '../shared
 
 const prisma = new PrismaClient();
 const hash = (t) => crypto.createHash('sha256').update(t).digest('hex');
-const password = process.env.SEED_PASSWORD || 'demo-pass-1234';
+// デモアカウントのパスワード。SEED_PASSWORD が未設定なら毎回ランダムに作り、最後に表示する
+// （既定のパスワードを持たないことで、設定し忘れても誰でもログインできる状態にならない）
+const passwordGenerated = !process.env.SEED_PASSWORD;
+const password = process.env.SEED_PASSWORD || crypto.randomBytes(12).toString('base64url');
+
+// アカウントを作る。すでにある場合はパスワードを変えずにそのまま使う
+const created = [];
+const existing = [];
+async function ensureUser(data) {
+  const found = await prisma.user.findUnique({ where: { email: data.email } });
+  if (found) {
+    existing.push(data.email);
+    return found;
+  }
+  created.push(data.email);
+  return prisma.user.create({ data });
+}
 
 async function main() {
   const passwordHash = await bcrypt.hash(password, 10);
@@ -29,26 +45,14 @@ async function main() {
     }
   }
 
-  await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
-    update: {},
-    create: { email: 'admin@example.com', passwordHash, role: 'ADMIN', lang: 'en' },
-  });
-  await prisma.user.upsert({
-    where: { email: 'traveler@example.com' },
-    update: {},
-    create: { email: 'traveler@example.com', passwordHash, role: 'TRAVELER', lang: 'en', currency: 'SGD', cardDemoCompleted: true },
-  });
+  await ensureUser({ email: 'admin@example.com', passwordHash, role: 'ADMIN', lang: 'en' });
+  await ensureUser({ email: 'traveler@example.com', passwordHash, role: 'TRAVELER', lang: 'en', currency: 'SGD', cardDemoCompleted: true });
 
   const today = todayJst();
   const ids = {};
   for (const s of SHOPS) {
     const { dishes, limited, ...data } = s;
-    const owner = await prisma.user.upsert({
-      where: { email: `owner+${s.slug}@example.com` },
-      update: {},
-      create: { email: `owner+${s.slug}@example.com`, passwordHash, role: 'OWNER', lang: 'en' },
-    });
+    const owner = await ensureUser({ email: `owner+${s.slug}@example.com`, passwordHash, role: 'OWNER', lang: 'en' });
     const shopData = {
       ...data,
       published: true,
@@ -97,9 +101,16 @@ async function main() {
   }
 
   console.log('Seed completed.');
-  console.log(`  admin:    admin@example.com / ${password}`);
-  console.log(`  traveler: traveler@example.com / ${password}`);
-  console.log(`  owners:   owner+<slug>@example.com / ${password}  (例: owner+tsujimura-chaen@example.com)`);
+  if (created.length) {
+    console.log('');
+    console.log(`新しく作ったアカウント（${created.length}件）のパスワード：${password}`);
+    if (passwordGenerated) console.log('  ※ SEED_PASSWORD が未設定のためランダムに作りました。再表示できないので、今のうちに控えてください。');
+    for (const email of created) console.log(`  - ${email}`);
+  }
+  if (existing.length) {
+    console.log('');
+    console.log(`すでにあったアカウント（${existing.length}件）はパスワードを変更していません。`);
+  }
 }
 
 main()

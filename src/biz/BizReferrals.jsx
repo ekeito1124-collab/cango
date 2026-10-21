@@ -34,7 +34,7 @@ export default function BizReferrals() {
   const visible = (r) => r.targetConsent === 'APPROVED' && r.reviewStatus === 'APPROVED' && r.isPublic;
 
   return (
-    <div className="stack">
+    <div className="referral-layout">
       <section className="card stack">
         <h2>近くのお店を紹介する</h2>
         <p className="fine">普段から知っているお店を、ご自身の言葉で紹介してください。「一番人気」「絶対おすすめ」などの根拠のない表現は避けてください。紹介先のお店が同意し、運営が確認した後に公開されます。</p>

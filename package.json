@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "dotenv -e .env.local -- vite",
     "build": "prisma generate && vite build",
     "preview": "vite preview",
     "postinstall": "prisma generate",
@@ -14,7 +14,6 @@
     "db:studio": "dotenv -e .env.local -- prisma studio"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "0.128.0",
     "@prisma/client": "6.19.3",
     "bcryptjs": "3.0.3",
     "jose": "6.2.12",

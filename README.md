@@ -35,17 +35,29 @@ npm run dev                    # http://localhost:5173 （Vite だけで API も
 |---|---|---|
 | `cango_DATABASE_URL`, `cango_DATABASE_URL_UNPOOLED` | 必須 | Neon の接続先（Vercel の Neon 連携で `cango_` 付きの名前で作られ、`vercel env pull` で入る） |
 | `AUTH_SECRET` | 本番で必須 | ログインセッションの署名鍵。`openssl rand -base64 32` などで生成し、Vercel の Environment Variables にも設定 |
-| `ANTHROPIC_API_KEY` | 任意 | 自動翻訳（Claude）と AI キャラクター機能。未設定でもシード済みの訳は表示され、未翻訳の文は日本語原文＋「翻訳未対応」表示になる |
+| `GEMINI_API_KEY` | 任意 | 自動翻訳と AI キャラクター機能（Google Gemini API。https://aistudio.google.com/apikey で発行、無料枠あり）。設定すると自動で有効になる（コードの変更は不要。本番は再デプロイ、手元は `npm run dev` の再起動が必要）。未設定でもシード済みの訳は表示され、未翻訳の文は日本語原文＋「翻訳未対応」表示になる |
+| `GEMINI_MODEL` | 任意 | 使う Gemini のモデル。未設定なら最新の Flash モデル（`gemini-flash-latest`） |
 | `RESEND_API_KEY`, `MAIL_FROM` | 任意 | メール送信（パスワード再設定・事業者への通知）。未設定ならサーバーログに出力のみ。ローカルではパスワード再設定リンクが画面に表示される |
 | `APP_URL` | 任意 | メール内リンクのベース URL |
 
-### デモアカウント（シード後。パスワードは `SEED_PASSWORD`、既定 `demo-pass-1234`）
+### デモアカウント（シード後）
+
+パスワードは `SEED_PASSWORD` で指定します。未設定の場合はシード実行時にランダムに作られ、その場で一度だけ表示されます。すでにあるアカウントのパスワードは変わりません。
 
 - 旅行者：`traveler@example.com`
 - 事業者：`owner+<店舗slug>@example.com`（例：`owner+maruyoshi-shokudo@example.com`）
 - 運営：`admin@example.com`
 
-本番公開前にこれらのパスワードは必ず変更してください。
+表示されたパスワードは、他の人に見られない場所に控えてください。
+
+### 自動翻訳のキーを入れたあと
+
+運営画面（`/admin`）の「自動翻訳（Gemini）」で、キーが読み込まれているか・直近のエラーを確認できます。
+
+1. 「接続テスト」で 1 文だけ翻訳して、つながるか確かめる
+2. 「未翻訳の掲載文をまとめて翻訳」で、キーがなかった間に登録された紹介文などを 5 言語に翻訳する
+
+キーが無効のときは 10 分間、無料枠の上限に達したときは 1 分間、翻訳の呼び出しを止め、その理由を表示します（画面が遅くならないように）。翻訳できなかった文は日本語の原文のまま表示されます。
 
 ## デプロイ（Vercel）
 

@@ -1532,3 +1532,394 @@ textarea:focus-visible {
 .cta-bar .link {
   align-self: flex-start;
 }
+
+/* =====================================================
+   旅行者向け：スマートフォン前提。PC で開いてもスマホ幅の列で表示する
+   ===================================================== */
+.app.traveler {
+  max-width: 520px;
+  background: var(--bg);
+}
+@media (min-width: 600px) {
+  body:has(.app.traveler) {
+    background: #e9e4d8;
+  }
+  .app.traveler {
+    box-shadow: 0 0 0 1px var(--line), 0 10px 40px rgba(0, 0, 0, 0.08);
+  }
+}
+/* 下部タブ・キャラクターも列の中に収める */
+.app.traveler .tabbar {
+  left: 50%;
+  right: auto;
+  width: min(100%, 520px);
+  transform: translateX(-50%);
+}
+.app.traveler .chabo,
+.app.traveler .chabo-mini {
+  right: max(12px, calc((100vw - 520px) / 2 + 12px));
+}
+/* 指で押しやすい大きさ（目安 44px 以上） */
+.app.traveler .chip {
+  min-height: 40px;
+  padding: 0.45rem 0.9rem;
+}
+.app.traveler .btn {
+  min-height: 44px;
+}
+.app.traveler .btn.small {
+  min-height: 36px;
+}
+.app.traveler select,
+.app.traveler input,
+.app.traveler textarea {
+  min-height: 44px;
+  font-size: 16px; /* iPhone で入力時に画面が拡大されないよう 16px 以上 */
+}
+.app.traveler .tr-meta .link,
+.app.traveler .link.small {
+  padding: 0.35rem 0;
+}
+.app.traveler .modal {
+  max-width: 520px;
+}
+
+/* =====================================================
+   事業者向け：PC・タブレット前提。広い画面ではサイドメニュー＋複数列
+   ===================================================== */
+.app.biz {
+  max-width: none;
+  padding-bottom: 0;
+}
+.app.biz .topbar {
+  position: sticky;
+}
+.app.biz .content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem 16px 3rem;
+}
+.biz-shell {
+  display: block;
+}
+.biz-tabs a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.biz-tabs .count {
+  min-width: 1.4rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.78rem;
+  text-align: center;
+}
+.biz-tabs .count.soft {
+  background: var(--muted);
+}
+.biz-side-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  font-size: 0.85rem;
+  margin: -0.4rem 0 0.4rem;
+}
+.biz-summary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+  margin: 0.5rem 0 1rem;
+}
+.stat {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.4rem;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.9rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.stat:hover {
+  border-color: var(--accent);
+}
+.stat-label {
+  flex-basis: 100%;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.stat strong {
+  font-size: 1.8rem;
+  line-height: 1.1;
+}
+.stat strong.small {
+  font-size: 1rem;
+}
+.stat.alert {
+  border-color: #e2b94a;
+  background: #fffaf0;
+}
+.stat.alert strong {
+  color: #9a5b00;
+}
+.res-grid {
+  display: grid;
+  gap: 1rem;
+}
+.res-grid .card {
+  margin: 0;
+}
+.inbox {
+  display: grid;
+  gap: 1rem;
+}
+.inbox-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+}
+.inbox-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-align: left;
+  width: 100%;
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  font: inherit;
+  cursor: pointer;
+  color: var(--ink);
+}
+.inbox-item.on {
+  border-color: var(--accent);
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+.inbox-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.inbox-preview {
+  font-size: 0.88rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.inbox-thread {
+  margin: 0;
+}
+.inbox-thread .messages li {
+  max-width: 75%;
+}
+.cal-layout {
+  display: grid;
+  gap: 1rem;
+}
+.cal-panel {
+  margin: 0;
+}
+.quick-pick {
+  margin-bottom: 0.5rem;
+}
+.cal-wd.sun {
+  color: #b33a2e;
+}
+.cal-wd.sat {
+  color: #2b62b3;
+}
+.cal-day {
+  position: relative;
+}
+.cal-day.today {
+  outline: 2px dashed var(--accent);
+  outline-offset: -4px;
+}
+.cal-day .c {
+  display: none;
+}
+.saved-note {
+  margin: 0;
+  color: var(--ok);
+  font-weight: 700;
+}
+.referral-layout {
+  display: grid;
+  gap: 1rem;
+}
+.referral-layout .card {
+  margin: 0;
+}
+.app.biz .btn,
+.app.admin .btn {
+  min-height: 40px;
+}
+.app.biz button:hover:not(:disabled),
+.app.admin button:hover:not(:disabled) {
+  filter: brightness(0.97);
+}
+
+/* タブレット（縦）以上 */
+@media (min-width: 720px) {
+  .biz-summary {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .actions {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* タブレット（横）・PC：左にサイドメニュー */
+@media (min-width: 960px) {
+  .biz-shell {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+  .biz-side {
+    position: sticky;
+    top: calc(64px + env(safe-area-inset-top, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .biz-side .biz-tabs {
+    flex-direction: column;
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .biz-side .biz-tabs a {
+    justify-content: space-between;
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem;
+  }
+  .biz-side-foot {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0 0.9rem;
+    font-size: 0.9rem;
+  }
+  .app.biz .footer {
+    display: none;
+  }
+  .biz-summary {
+    margin-top: 0;
+  }
+  .inbox {
+    grid-template-columns: 300px minmax(0, 1fr);
+    align-items: start;
+  }
+  .inbox-list {
+    flex-direction: column;
+    overflow: visible;
+    position: sticky;
+    top: calc(64px + env(safe-area-inset-top, 0px));
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
+  }
+  .inbox-item {
+    min-width: 0;
+  }
+  .cal-layout {
+    grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr);
+    align-items: start;
+  }
+  .cal-panel {
+    position: sticky;
+    top: calc(64px + env(safe-area-inset-top, 0px));
+  }
+  .cal-day {
+    aspect-ratio: auto;
+    min-height: 74px;
+    justify-content: flex-start;
+    padding-top: 0.35rem;
+  }
+  .cal-day .c {
+    display: block;
+    font-size: 0.66rem;
+    color: #7a5200;
+    line-height: 1.2;
+    padding: 0 0.2rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+  .referral-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  .referral-layout > .card:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* 広い PC：予約カードと店舗フォームを 2 列に */
+@media (min-width: 1200px) {
+  .res-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+  .shop-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: start;
+  }
+  .shop-form > .card {
+    margin: 0;
+  }
+  .shop-form > .btn,
+  .shop-form > p {
+    grid-column: 1 / -1;
+  }
+  .shop-form > .btn.big {
+    position: sticky;
+    bottom: 1rem;
+    justify-self: start;
+    min-width: 280px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  }
+}
+
+/* 運営画面：PC 向けに広く */
+.app.admin {
+  max-width: none;
+}
+.app.admin .content {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+@media (min-width: 1100px) {
+  .app.admin .content {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: start;
+  }
+  .app.admin .content > .card {
+    margin: 0;
+  }
+  .app.admin .content > .card:last-child {
+    grid-column: 1 / -1;
+  }
+}
+.biz-side-foot > * {
+  align-self: flex-start;
+  text-align: left;
+}

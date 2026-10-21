@@ -53,7 +53,8 @@ export default function Admin() {
       <header className="topbar">
         <span className="brand">Cango 運営</span>
       </header>
-      <main className="content stack">
+      <main className="content">
+        <TranslationPanel />
         <section className="card">
           <h2>掲載内容の確認（{data.shops.length}件）</h2>
           {!data.shops.length && <p className="muted">確認待ちはありません。</p>}
@@ -216,6 +217,92 @@ function Glossary({ terms, onChange }) {
         ))}
         <button className="btn primary">用語を保存</button>
       </form>
+    </section>
+  );
+}
+
+const TR_ERRORS = {
+  disabled: 'GEMINI_API_KEY が設定されていません',
+  paused: 'エラーが続いたため一時停止中です（しばらくすると自動で再開します）',
+  invalid_key: 'API キーが正しくありません（コピーの誤り・削除されたキーなど）',
+  no_permission: 'このキーには利用権限がありません',
+  quota: '無料枠の上限に達しました（1分あたりの回数など）。少し待つと再開します',
+  model_not_found: 'モデルが見つかりません（GEMINI_MODEL の指定を確認してください）',
+  server_error: 'Gemini 側で一時的なエラーが起きました',
+  rate_limited: '短時間に呼び出しすぎました。少し待ってからお試しください',
+  timeout: '応答に時間がかかりすぎました',
+  network: 'Gemini に接続できませんでした',
+  refusal: '内容によって翻訳が断られました',
+  incomplete: '翻訳が途中で終わりました',
+  bad_output: '翻訳結果を読み取れませんでした',
+};
+const trError = (code) => (code ? TR_ERRORS[code] || `エラー（${code}）` : null);
+
+// 自動翻訳（Gemini）の状態確認・接続テスト・未翻訳分の一括翻訳
+function TranslationPanel() {
+  const [st, setSt] = useState(null);
+  const [msg, setMsg] = useState(null);
+  const [busy, guard] = useGuard();
+  const load = () => api('admin/translation/status').then(setSt).catch(() => setSt(null));
+  useEffect(() => {
+    load();
+  }, []);
+  const test = guard(async () => {
+    const r = await api('admin/translation/test', { method: 'POST' });
+    setMsg(r.ok ? `接続できました：「${r.sample}」→「${r.text}」` : `接続できませんでした：${trError(r.lastError) || '不明なエラー'}`);
+    load();
+  });
+  const backfill = guard(async () => {
+    let total = 0;
+    // 1 回の呼び出しは 35 秒までなので、残りがなくなるまで繰り返す
+    for (let i = 0; i < 20; i++) {
+      const r = await api('admin/translation/backfill', { method: 'POST' });
+      total += r.translated;
+      setMsg(`翻訳中… ${total} 件完了・残り ${r.remaining} 件`);
+      if (!r.remaining || !r.translated) {
+        setMsg(r.remaining ? `${total} 件翻訳しました。残り ${r.remaining} 件は翻訳できませんでした：${trError(r.lastError) || '不明なエラー'}` : `完了しました（${total} 件翻訳）`);
+        break;
+      }
+    }
+    load();
+  });
+  if (!st) return null;
+  const missingTotal = Object.values(st.missing || {}).reduce((a, b) => a + b, 0);
+  return (
+    <section className="card">
+      <h2>自動翻訳（Gemini）</h2>
+      <dl className="kv">
+        <dt>状態</dt>
+        <dd>{st.enabled ? (st.pausedUntil ? '一時停止中' : '有効') : '無効（キー未設定）'}</dd>
+        {st.enabled && (
+          <>
+            <dt>モデル</dt>
+            <dd>{st.model}</dd>
+            <dt>キーの形式</dt>
+            <dd>{st.keyLooksValid ? 'OK（AIza で始まる）' : '要確認：AIza で始まっていません'}</dd>
+            <dt>最後に成功</dt>
+            <dd>{st.lastSuccessAt ? jaDateTime(st.lastSuccessAt) : '—'}</dd>
+            <dt>直近のエラー</dt>
+            <dd>{trError(st.lastError) || 'なし'}</dd>
+          </>
+        )}
+        <dt>未翻訳の掲載文</dt>
+        <dd>{missingTotal ? Object.entries(st.missing).map(([l, n]) => `${LANG_LABELS[l]} ${n}`).join('・') : 'なし'}</dd>
+      </dl>
+      {!st.enabled && (
+        <p className="fine">
+          Vercel の Environment Variables に GEMINI_API_KEY を登録して再デプロイすると有効になります（手元では npx vercel env pull .env.local のあと開発サーバーを再起動）。
+        </p>
+      )}
+      <div className="row wrap">
+        <button className="btn" onClick={test} disabled={busy || !st.enabled}>
+          接続テスト
+        </button>
+        <button className="btn primary" onClick={backfill} disabled={busy || !st.enabled || !missingTotal}>
+          未翻訳の掲載文をまとめて翻訳
+        </button>
+      </div>
+      {msg && <p className="fine">{msg}</p>}
     </section>
   );
 }

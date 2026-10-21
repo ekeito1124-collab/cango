@@ -1,7 +1,6 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { prisma } from '../db.js';
 import { HttpError, notFound, str } from '../http.js';
-import { translationEnabled } from '../translate.js';
+import { llmJson } from '../llm.js';
 import { shopTexts, visibleReferralWhere } from '../shopView.js';
 import {
   ALLERGENS,
@@ -19,22 +18,12 @@ import {
 // 画面側はキャラクター表示中のみ呼び出す。回答は登録済みの店舗データに限定する
 
 const LANG_NAMES = { en: 'English', zh: 'Simplified Chinese', ko: 'Korean', fr: 'French', es: 'Spanish', ja: 'Japanese' };
-let client;
-const anthropic = () => (client ||= new Anthropic());
-
 async function structured(system, user, schema) {
-  if (!translationEnabled()) throw new HttpError(503, 'ai_unavailable');
-  const response = await anthropic().beta.messages.create({
-    model: 'claude-opus-5-5',
-    max_tokens: 16000,
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
-    output_config: { effort: 'low', format: { type: 'json_schema', schema } },
-    system,
-    messages: [{ role: 'user', content: user }],
-  });
-  if (response.stop_reason !== 'end_turn') throw new HttpError(502, 'ai_failed');
-  return JSON.parse(response.content.find((b) => b.type === 'text').text);
+  try {
+    return await llmJson({ system, user, schema });
+  } catch (e) {
+    throw new HttpError(503, 'ai_unavailable', e.code);
+  }
 }
 
 const enumArray = (values) => ({ type: 'array', items: { type: 'string', enum: values } });

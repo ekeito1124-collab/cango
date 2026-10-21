@@ -421,7 +421,7 @@ export default {
   'error.retry': "Try again",
   'error.back': "Go back",
   'privacy.title': "Data and translation",
-  'privacy.translationOn': "Automatic translation is on. Messages you send to shops, the shops' replies and shop listings are sent to Anthropic (Claude, USA) to be translated.",
+  'privacy.translationOn': "Automatic translation is on. Messages you send to shops, the shops' replies and shop listings are sent to Google (Gemini API, USA) to be translated.",
   'privacy.translationOff': "Automatic translation is currently off. Messages are delivered as written and are not sent to any translation service.",
   'privacy.local': "Your display settings and today's wishes are stored only in this browser.",
   'reserve.messageNoteOff': "Automatic translation is currently off, so your message is delivered as written. Allergies and other selections are shown to the shop in Japanese.",

@@ -421,7 +421,7 @@ export default {
   'error.retry': "Reintentar",
   'error.back': "Volver",
   'privacy.title': "Datos y traducción",
-  'privacy.translationOn': "La traducción automática está activada. Los mensajes que envías a los establecimientos, sus respuestas y sus fichas se envían a Anthropic (Claude, EE. UU.) para traducirlos.",
+  'privacy.translationOn': "La traducción automática está activada. Los mensajes que envías a los establecimientos, sus respuestas y sus fichas se envían a Google (API de Gemini, EE. UU.) para traducirlos.",
   'privacy.translationOff': "La traducción automática está desactivada. Los mensajes se entregan tal como se escriben y no se envían a ningún servicio de traducción.",
   'privacy.local': "Tus ajustes de visualización y tus deseos de hoy se guardan solo en este navegador.",
   'reserve.messageNoteOff': "La traducción automática está desactivada, así que tu mensaje se entrega tal cual. Las alergias y otras selecciones se muestran al establecimiento en japonés.",

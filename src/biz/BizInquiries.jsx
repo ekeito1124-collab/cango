@@ -8,17 +8,38 @@ import { BizError } from './BizApp.jsx';
 export default function BizInquiries() {
   const [threads, setThreads] = useState(null);
   const [error, setError] = useState(null);
+  const [selected, setSelected] = useState(null);
   const load = () => api('biz/inquiries').then((d) => setThreads(d.threads)).catch(setError);
   useEffect(() => {
     load();
   }, []);
-  if (!threads) return <BizError error={error} />;
+  if (!threads) return error ? <BizError error={error} /> : <p className="muted">読み込み中…</p>;
   if (!threads.length) return <p className="muted">お問い合わせはまだありません。</p>;
+  const current = threads.find((th) => th.userId === selected) || threads[0];
   return (
-    <div className="stack">
-      {threads.map((th) => (
-        <Thread key={th.userId} th={th} onSent={load} />
-      ))}
+    // PC では左にお客様の一覧、右にやり取りを並べる
+    <div className="inbox">
+      <ul className="inbox-list" aria-label="お問い合わせの一覧">
+        {threads.map((th) => {
+          const last = th.messages[th.messages.length - 1];
+          const waiting = last?.sender === 'TRAVELER';
+          return (
+            <li key={th.userId}>
+              <button className={'inbox-item' + (th.userId === current.userId ? ' on' : '')} onClick={() => setSelected(th.userId)} aria-current={th.userId === current.userId}>
+                <span className="inbox-head">
+                  <strong>{th.guestLabel}</strong>
+                  {waiting && <span className="status PENDING">返信待ち</span>}
+                </span>
+                <span className="inbox-preview">{last?.text}</span>
+                <span className="fine">
+                  {JA.guestLang[th.guestLang] || th.guestLang}・{jaDateTime(last?.createdAt)}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      <Thread key={current.userId} th={current} onSent={load} />
       <BizError error={error} />
     </div>
   );
@@ -28,8 +49,7 @@ function Thread({ th, onSent }) {
   const [text, setText] = useState('');
   const [error, setError] = useState(null);
   const [busy, guard] = useGuard();
-  const send = guard(async (e) => {
-    e.preventDefault();
+  const send = guard(async () => {
     try {
       await api('biz/inquiries/' + th.userId, { method: 'POST', body: { message: text } });
       setText('');
@@ -39,7 +59,7 @@ function Thread({ th, onSent }) {
     }
   });
   return (
-    <section className="card">
+    <section className="card inbox-thread">
       <h2>
         {th.guestLabel}（{JA.guestLang[th.guestLang] || th.guestLang}）
       </h2>
@@ -54,7 +74,7 @@ function Thread({ th, onSent }) {
         ))}
       </ul>
       <form onSubmit={send} className="stack">
-        <TextArea rows={2} value={text} onChange={setText} placeholder="日本語で返信してください。お客様の言語に翻訳して送ります。" />
+        <TextArea rows={3} value={text} onChange={setText} onCtrlEnter={() => text.trim() && send()} placeholder="日本語で返信してください（Ctrl＋Enter で送信）" />
         <button className="btn primary" disabled={busy || !text.trim()}>
           {busy ? '送信中…' : '返信する'}
         </button>

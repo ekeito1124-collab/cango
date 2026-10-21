@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { Link, NavLink, Navigate, Route, Routes, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { api, store, useGuard } from '../lib.js';
 import { todayJst } from '../../shared/constants.js';
+import { jaDateTime } from './labels.js';
 import BizRequests from './BizRequests.jsx';
 import BizCalendar from './BizCalendar.jsx';
 import BizShop, { ShopForm } from './BizShop.jsx';
@@ -78,48 +79,88 @@ function Dashboard() {
     navigate('/biz');
   };
   const stale = overview && (!overview.availabilityUpdatedAt || Date.now() - new Date(overview.availabilityUpdatedAt).getTime() > 7 * 86400e3);
+  const c = overview?.counts;
   return (
-    <div>
-      {overview && !overview.shop.published && <p className="card warn">お店の情報は運営の確認待ちです。確認が終わると旅行者に公開されます。</p>}
-      {stale && !staleDismissed && overview.shop.reservationMethod !== 'NONE' && (
-        <div className="card warn notice">
-          <p>空き状況が1週間以上更新されていません。旅行者には最終更新日時が表示されます。「空き状況」から更新してください。</p>
-          <button
-            className="icon-btn"
-            aria-label="閉じる（今日は表示しない）"
-            title="閉じる（今日は表示しない）"
-            onClick={() => {
-              store.set('biz.staleDismissed', todayJst());
-              setStaleDismissed(true);
-            }}
-          >
-            ×
+    <div className="biz-shell">
+      {/* PC・タブレット横向きでは左のサイドメニュー、狭い画面では上のタブになる */}
+      <aside className="biz-side">
+        <nav className="biz-tabs" aria-label="事業者メニュー">
+          <NavLink to="/biz" end>
+            <span>予約リクエスト</span>
+            {c?.pending ? <b className="count">{c.pending}</b> : null}
+          </NavLink>
+          <NavLink to="/biz/calendar">
+            <span>空き状況</span>
+          </NavLink>
+          <NavLink to="/biz/inquiries">
+            <span>お問い合わせ</span>
+            {c?.unanswered ? <b className="count soft">{c.unanswered}</b> : null}
+          </NavLink>
+          <NavLink to="/biz/shop">
+            <span>店舗情報</span>
+          </NavLink>
+          <NavLink to="/biz/referrals">
+            <span>紹介</span>
+          </NavLink>
+        </nav>
+        <div className="biz-side-foot">
+          <button className="link" onClick={logout}>
+            ログアウト
           </button>
+          <a href="/">旅行者向け画面</a>
         </div>
-      )}
-      <nav className="biz-tabs">
-        <NavLink to="/biz" end>
-          予約リクエスト{overview?.counts.pending ? `（${overview.counts.pending}）` : ''}
-        </NavLink>
-        <NavLink to="/biz/calendar">空き状況</NavLink>
-        <NavLink to="/biz/inquiries">お問い合わせ</NavLink>
-        <NavLink to="/biz/shop">店舗情報</NavLink>
-        <NavLink to="/biz/referrals">紹介</NavLink>
-      </nav>
-      <Routes>
-        <Route index element={<BizRequests onChange={reload} />} />
-        <Route path="calendar" element={<BizCalendar shop={overview?.shop} onChange={reload} />} />
-        <Route path="inquiries" element={<BizInquiries />} />
-        <Route path="shop" element={overview ? <BizShop shop={overview.shop} onSaved={reload} /> : <p>読み込み中…</p>} />
-        <Route path="referrals" element={<BizReferrals />} />
-        <Route path="*" element={<Navigate to="/biz" replace />} />
-      </Routes>
-      <footer className="footer">
-        <button className="link" onClick={logout}>
-          ログアウト
-        </button>
-        <a href="/">旅行者向け画面</a>
-      </footer>
+      </aside>
+
+      <section className="biz-main">
+        {overview && !overview.shop.published && <p className="card warn">お店の情報は運営の確認待ちです。確認が終わると旅行者に公開されます。</p>}
+        {stale && !staleDismissed && overview.shop.reservationMethod !== 'NONE' && (
+          <div className="card warn notice">
+            <p>空き状況が1週間以上更新されていません。旅行者には最終更新日時が表示されます。「空き状況」から更新してください。</p>
+            <button
+              className="icon-btn"
+              aria-label="閉じる（今日は表示しない）"
+              title="閉じる（今日は表示しない）"
+              onClick={() => {
+                store.set('biz.staleDismissed', todayJst());
+                setStaleDismissed(true);
+              }}
+            >
+              ×
+            </button>
+          </div>
+        )}
+        {c && (
+          <div className="biz-summary">
+            <Link to="/biz" className={'stat' + (c.pending ? ' alert' : '')}>
+              <span className="stat-label">承認待ち</span>
+              <strong>{c.pending}</strong>
+              <span className="stat-unit">件</span>
+            </Link>
+            <Link to="/biz" className="stat">
+              <span className="stat-label">これからの確定予約</span>
+              <strong>{c.upcoming}</strong>
+              <span className="stat-unit">件</span>
+            </Link>
+            <Link to="/biz/inquiries" className="stat">
+              <span className="stat-label">お問い合わせ</span>
+              <strong>{c.unanswered}</strong>
+              <span className="stat-unit">通</span>
+            </Link>
+            <Link to="/biz/calendar" className="stat">
+              <span className="stat-label">空き状況の最終更新</span>
+              <strong className="small">{overview.availabilityUpdatedAt ? jaDateTime(overview.availabilityUpdatedAt) : '未登録'}</strong>
+            </Link>
+          </div>
+        )}
+        <Routes>
+          <Route index element={<BizRequests onChange={reload} />} />
+          <Route path="calendar" element={<BizCalendar shop={overview?.shop} onChange={reload} />} />
+          <Route path="inquiries" element={<BizInquiries />} />
+          <Route path="shop" element={overview ? <BizShop shop={overview.shop} onSaved={reload} /> : <p>読み込み中…</p>} />
+          <Route path="referrals" element={<BizReferrals />} />
+          <Route path="*" element={<Navigate to="/biz" replace />} />
+        </Routes>
+      </section>
     </div>
   );
 }
@@ -196,7 +237,7 @@ function Signup() {
       <p className="muted">外国人旅行者向けの特別な商品を用意する必要はありません。普段の営業のまま、受け入れられる範囲で登録してください。登録後、運営が内容を確認してから公開します。</p>
       <p className="fine">
         {translationOn
-          ? '自動翻訳がオンのため、入力した紹介文や旅行者とのメッセージは、翻訳のため Anthropic（Claude、米国）に送信されます。'
+          ? '自動翻訳がオンのため、入力した紹介文や旅行者とのメッセージは、翻訳のため Google（Gemini API、米国）に送信されます。'
           : '自動翻訳は現在オフです。入力した内容は翻訳サービスには送信されません。'}
       </p>
       <section className="card stack">

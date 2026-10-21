@@ -1,11 +1,11 @@
 import crypto from 'node:crypto';
-import Anthropic from '@anthropic-ai/sdk';
 import { prisma } from './db.js';
 import { TRANSLATION_LANGS } from '../shared/constants.js';
+import { llmEnabled, llmJson } from './llm.js';
 
 // 自動翻訳（4-2, 13-3, 20-1）
 // 1. 翻訳キャッシュ（シード時の訳・過去の翻訳）を優先する
-// 2. ない場合は ANTHROPIC_API_KEY があれば Claude で翻訳し、用語集の固定訳を必ず使わせる
+// 2. ない場合は GEMINI_API_KEY があれば Gemini で翻訳し、用語集の固定訳を必ず使わせる
 // 3. どちらもない場合は null を返し、画面側で日本語原文と「翻訳未対応」を表示する
 
 const LANG_NAMES = {
@@ -17,13 +17,7 @@ const LANG_NAMES = {
   es: 'Spanish',
 };
 
-export const translationEnabled = () => Boolean(process.env.ANTHROPIC_API_KEY);
-
-let client;
-function anthropic() {
-  if (!client) client = new Anthropic();
-  return client;
-}
+export const translationEnabled = llmEnabled;
 
 export const hashText = (t) => crypto.createHash('sha256').update(t).digest('hex');
 
@@ -53,7 +47,7 @@ function relevantTerms(terms, texts, from, to) {
   return out;
 }
 
-async function callClaude(texts, from, to, terms, context) {
+async function callModel(texts, from, to, terms, context) {
   const system = [
     `You translate short texts for a booking app that connects foreign travelers with small local businesses in Japan.`,
     `Translate each item ${from === 'auto' ? 'from whatever language it is written in' : `from ${LANG_NAMES[from]}`} into ${LANG_NAMES[to]}.`,
@@ -69,32 +63,16 @@ async function callClaude(texts, from, to, terms, context) {
     .filter(Boolean)
     .join('\n\n');
 
-  const response = await anthropic().beta.messages.create({
-    model: 'claude-opus-5-5',
-    max_tokens: 16000,
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
-    output_config: {
-      effort: 'low',
-      format: {
-        type: 'json_schema',
-        schema: {
-          type: 'object',
-          properties: { translations: { type: 'array', items: { type: 'string' } } },
-          required: ['translations'],
-          additionalProperties: false,
-        },
-      },
-    },
+  const parsed = await llmJson({
     system,
-    messages: [{ role: 'user', content: JSON.stringify({ items: texts }) }],
+    user: JSON.stringify({ items: texts }),
+    schema: {
+      type: 'object',
+      properties: { translations: { type: 'array', items: { type: 'string' } } },
+      required: ['translations'],
+      additionalProperties: false,
+    },
   });
-  if (response.stop_reason !== 'end_turn') {
-    console.error('[translate] stop_reason', response.stop_reason);
-    return null;
-  }
-  const block = response.content.find((b) => b.type === 'text');
-  const parsed = JSON.parse(block.text);
   if (!Array.isArray(parsed.translations) || parsed.translations.length !== texts.length) return null;
   return parsed.translations;
 }
@@ -134,18 +112,18 @@ export async function translateMany(texts, to, { from = 'ja', cache = true, cont
       // 1 回の呼び出しを大きくしすぎないよう 40 件ずつ処理する
       for (let i = 0; i < missing.length; i += 40) {
         const chunk = missing.slice(i, i + 40);
-        const out = await callClaude(chunk, from, to, terms, context);
+        const out = await callModel(chunk, from, to, terms, context);
         if (!out) continue;
         chunk.forEach((t, j) => result.set(t, out[j]));
         if (cache) {
           await prisma.translationCache.createMany({
-            data: chunk.map((t, j) => ({ sourceHash: hashText(t), targetLang: to, sourceText: t, text: out[j], provider: 'claude' })),
+            data: chunk.map((t, j) => ({ sourceHash: hashText(t), targetLang: to, sourceText: t, text: out[j], provider: 'gemini' })),
             skipDuplicates: true,
           });
         }
       }
-    } catch (e) {
-      console.error('[translate]', e?.status || '', e?.message);
+    } catch {
+      // 失敗の内容は llm.js が記録する。翻訳できなかった文は原文のまま表示される
     }
   }
 

@@ -421,7 +421,7 @@ export default {
   'error.retry': "もう一度試す",
   'error.back': "前の画面に戻る",
   'privacy.title': "データと翻訳",
-  'privacy.translationOn': "自動翻訳がオンになっています。お店に送るメッセージ、お店からの返信、お店の掲載文は、翻訳のため Anthropic（Claude、米国）に送信されます。",
+  'privacy.translationOn': "自動翻訳がオンになっています。お店に送るメッセージ、お店からの返信、お店の掲載文は、翻訳のため Google（Gemini API、米国）に送信されます。",
   'privacy.translationOff': "自動翻訳は現在オフです。メッセージは書いたまま届き、翻訳サービスには送信されません。",
   'privacy.local': "表示の設定と今日の希望は、このブラウザの中にだけ保存されます。",
   'reserve.messageNoteOff': "自動翻訳は現在オフのため、メッセージは書いたまま届きます。アレルギーなどの選択項目は、お店には日本語で表示されます。",

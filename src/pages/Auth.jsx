@@ -7,8 +7,8 @@ import { ErrorText } from '../components/ui.jsx';
 function useNext(fallback) {
   const [params] = useSearchParams();
   const next = params.get('next');
-  // 同一サイト内のパスだけ許可する
-  return next && next.startsWith('/') && !next.startsWith('//') ? next : fallback;
+  // 同一サイト内のパスだけ許可する（// や \ を含むものは別サイトとして扱われることがあるため除く）
+  return next && next.startsWith('/') && !next.startsWith('//') && !next.includes('\\') ? next : fallback;
 }
 
 export function Login() {

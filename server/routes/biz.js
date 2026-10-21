@@ -184,7 +184,8 @@ function shopData(b, { partial = true } = {}) {
   }
   if (!partial || has('description')) set('description', str(b.description, { required: true, max: 1000, name: 'description' }));
   if (has('photos')) {
-    const photos = (Array.isArray(b.photos) ? b.photos : []).map((p) => String(p).trim()).filter((p) => /^https:\/\//.test(p) || p.startsWith('/'));
+    // https:// の URL か、このサイト内のパス（/ で始まり // ではないもの）だけを許可する
+    const photos = (Array.isArray(b.photos) ? b.photos : []).map((p) => String(p).trim()).filter((p) => /^https:\/\//.test(p) || /^\/(?!\/)/.test(p));
     set('photos', photos.slice(0, 8));
   }
   if (!partial || has('hoursText')) set('hoursText', str(b.hoursText, { required: true, max: 200, name: 'hoursText' }));

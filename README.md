@@ -1,0 +1,71 @@
+# Cango — ローカル体験予約アプリ（MVP）
+
+仕様書：[docs/01_spec.md](docs/01_spec.md)
+
+外国人旅行者が地域の普通のお店を見つけ、日本語しか使えない事業者に言葉の壁なく予約リクエストを送れる Web アプリです。
+
+- フロントエンド：Vite + React（`src/`）
+- API：Vercel Functions。`api/router.js` の 1 関数で `/api/*` をすべて処理する（Hobby プランの関数数上限対策。ルーティングは `vercel.json` の rewrites）
+- DB：Vercel 経由の Postgres（Neon）＋ Prisma（`prisma/schema.prisma`）
+- サーバー側の処理本体：`server/`（`api/` 以外に置き、Function 数を増やさない）
+- サーバーとブラウザ共通の定数・ルール：`shared/constants.js`
+
+## 画面
+
+| URL | 内容 |
+|---|---|
+| `/en`, `/zh`, `/ko`, `/fr`, `/es`, `/ja` | 旅行者向け（言語別 URL）。探す・店舗詳細・予約・予約一覧・半日提案・設定 |
+| `/biz` | 事業者向け（日本語）。予約カードの承認／お断り／質問、〇△✕の設定、店舗情報、紹介、問い合わせ |
+| `/admin` | 運営向け。店主のことば・日常プロフィール・紹介の掲載確認、翻訳・食品表示の報告対応、用語集 |
+
+## セットアップ
+
+```bash
+npm install
+vercel link
+vercel env pull .env.local     # cango_DATABASE_URL / cango_DATABASE_URL_UNPOOLED を取得
+npm run db:deploy              # マイグレーション適用（開発中にスキーマを変えたら npm run db:migrate）
+npm run db:seed                # デモデータ投入（架空の宇治の店舗 8 件・用語集・仮のキャンセル規定）
+npm run dev                    # http://localhost:5173 （Vite だけで API も動く）
+```
+
+`.env.local` に追加する環境変数（[.env.example](.env.example) 参照）：
+
+| 変数 | 必須 | 用途 |
+|---|---|---|
+| `cango_DATABASE_URL`, `cango_DATABASE_URL_UNPOOLED` | 必須 | Neon の接続先（Vercel の Neon 連携で `cango_` 付きの名前で作られ、`vercel env pull` で入る） |
+| `AUTH_SECRET` | 本番で必須 | ログインセッションの署名鍵。`openssl rand -base64 32` などで生成し、Vercel の Environment Variables にも設定 |
+| `ANTHROPIC_API_KEY` | 任意 | 自動翻訳（Claude）と AI キャラクター機能。未設定でもシード済みの訳は表示され、未翻訳の文は日本語原文＋「翻訳未対応」表示になる |
+| `RESEND_API_KEY`, `MAIL_FROM` | 任意 | メール送信（パスワード再設定・事業者への通知）。未設定ならサーバーログに出力のみ。ローカルではパスワード再設定リンクが画面に表示される |
+| `APP_URL` | 任意 | メール内リンクのベース URL |
+
+### デモアカウント（シード後。パスワードは `SEED_PASSWORD`、既定 `demo-pass-1234`）
+
+- 旅行者：`traveler@example.com`
+- 事業者：`owner+<店舗slug>@example.com`（例：`owner+maruyoshi-shokudo@example.com`）
+- 運営：`admin@example.com`
+
+本番公開前にこれらのパスワードは必ず変更してください。
+
+## デプロイ（Vercel）
+
+Vercel の Environment Variables に `AUTH_SECRET`（と任意のキー）を設定し、通常どおりデプロイします。ビルドで `prisma generate` が実行されます。DB のマイグレーションは `npm run db:deploy` で手元から適用します。
+
+## 仕様上「未確定」のため仮に決めたこと（docs/01_spec.md 22章）
+
+| 項目 | この実装での扱い |
+|---|---|
+| 予約時間の入力・空き管理 | 空き状況は日単位。時間は店舗が設定した予約枠から選ぶ |
+| 承認期限 | 既定は「その日の最初の予約枠の N 時間前」（N は店舗設定）。期限を過ぎた承認待ちは自動で「期限切れ」 |
+| キャンセル料率・遅刻ルール | 標準：24 時間以内 50%／3 時間以内 100%、厳しめ：72 時間以内 50%／24 時間以内 100%。画面に「仮の値」と明示。実際の徴収はしない |
+| 通知手段 | メール（Resend）。リマインドは予約一覧での案内のみ |
+| 評価データ・おすすめ順 | 評価は取得元がある場合のみ使用（デモデータは評価なし）。評価＋予算の一致で並べ、ハラル希望時は認証店を優先 |
+| 宗教上の制限の保存 | 同意した場合のみ質問し、端末（ブラウザ）内にだけ保存。予約時に選んだ項目だけが店舗に伝わる |
+| 事業者登録の確認 | 登録後は非公開。運営が `/admin` で公開する。ハラル認証の設定も運営側のみ |
+| 店主の紹介文の掲載同意 | 紹介元が登録 → 紹介先が同意 → 運営が確認、の 3 つがそろったものだけ公開 |
+| 〇△✕を更新しない店舗 | 最終更新日時を常に表示し、事業者画面で 1 週間以上未更新なら警告 |
+| ダミー決済 | カード入力画面は値を送信・保存しない。通過したことだけを記録 |
+
+## 実装していないもの
+
+仕様書 21 章（MVP 以降）の機能。加えて、店舗紹介ネットワークの可視化（8-5）は MVP 必須外のため未実装です。

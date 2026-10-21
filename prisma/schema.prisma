@@ -1,0 +1,346 @@
+// ローカル体験予約アプリ（MVP） データモデル
+// 仕様書 docs/01_spec.md の 17章（データ設計）に対応
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("cango_DATABASE_URL")
+  directUrl = env("cango_DATABASE_URL_UNPOOLED")
+}
+
+enum Role {
+  TRAVELER
+  OWNER
+  ADMIN
+}
+
+// 予約方式（12-1）：A=アプリ予約 / B=電話対応店舗（翻訳付きメールでやり取り） / C=予約不可
+enum ReservationMethod {
+  APP
+  EMAIL
+  NONE
+}
+
+// 〇△✕（4-3）
+enum AvailabilityStatus {
+  OK
+  LIMITED
+  FULL
+}
+
+// 予約状態（12-4）
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  DECLINED
+  EXPIRED
+  CANCELLED_BY_TRAVELER
+  CANCELLED_BY_SHOP
+}
+
+// 運営による掲載内容の確認状態（7-2, 8-3）
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ConsentStatus {
+  PENDING
+  APPROVED
+  DECLINED
+}
+
+enum MessageSender {
+  TRAVELER
+  SHOP
+}
+
+enum ReportKind {
+  TRANSLATION
+  FOOD_INFO
+  CONTENT
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+}
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  passwordHash      String
+  role              Role     @default(TRAVELER)
+  lang              String   @default("en")
+  currency          String   @default("JPY")
+  // ダミーのカード入力画面を通過したか（カード情報そのものは一切保存しない：11-1）
+  cardDemoCompleted Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  shop         Shop?                @relation("ShopOwner")
+  reservations Reservation[]
+  messages     Message[]
+  resetTokens  PasswordResetToken[]
+  reports      Report[]
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Shop {
+  id        String  @id @default(cuid())
+  slug      String  @unique
+  // 日本語での正式名称と、旅行者向けのローマ字表記
+  name      String
+  nameRomaji String?
+  category  String
+  area      String
+  address   String
+  lat       Float
+  lng       Float
+  description String
+  photos    String[]
+  // 営業時間：表示用テキストと、日常シーン・半日提案の判定に使う時刻
+  hoursText String
+  openTime  String  @default("10:00")
+  closeTime String  @default("18:00")
+  // 定休日（0=日曜 … 6=土曜）
+  closedDays Int[]
+  priceMin  Int
+  priceMax  Int
+  priceNote String?
+  reservationMethod ReservationMethod @default(APP)
+  languages String[]
+
+  // 食事関連情報（9-2）
+  halalCertified Boolean  @default(false)
+  halalCertifier String?
+  dietaryOptions String[] // vegetarian, vegan, no_pork, no_alcohol, no_beef など（自己申告）
+  appealPoints   String[] // 「豚肉を使っていません」などの自己申告アピール（日本語）
+  allergenFreeShopwide String[] // 店舗全体で使用していないアレルギー物質
+  ingredientAdjust String[] // less（少なめ） / remove（抜き）
+
+  // お店の目安情報（すべて自己申告：5-5）
+  clientele      String? // LOCAL_MOSTLY | MIXED | TRAVELERS_MOSTLY
+  regulars       String? // MANY | SOME | FEW
+  guidebookListed Boolean?
+  tourListed     Boolean?
+  foundedYear    Int?
+  ownerDistance  String? // OWNER_SERVES | MAKER_PRESENT | STAFF_SERVES
+  soloWelcome    Boolean @default(false)
+  maxPartySize   Int     @default(4)
+
+  // 予約枠・承認期限・キャンセルポリシー
+  timeSlots            String[]
+  requestDeadlineHours Int     @default(24)
+  cancelPolicyCode     String  @default("STANDARD")
+
+  // 評価：実在する適法な取得元がある場合のみ（5-5）
+  rating      Float?
+  ratingCount Int?
+  ratingSource String?
+
+  // 日常シーン・いつもの一席（6章）
+  dailyScenes    String[]
+  normalBusiness Boolean @default(true)
+  specialOffer   String? // 店舗が実際に対応できると申告した特別な交流・案内（日本語）
+
+  // 店主のことば・日常プロフィール（7章）
+  ownerWords       String?
+  ownerWordsStatus ReviewStatus @default(PENDING)
+  dailyProfile       Json?
+  dailyProfileStatus ReviewStatus @default(PENDING)
+
+  // 掲載状態：事業者登録後、運営の確認を経て公開
+  published Boolean  @default(false)
+  isDemo    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerId String? @unique
+  owner   User?   @relation("ShopOwner", fields: [ownerId], references: [id])
+
+  dishes        Dish[]
+  availability  Availability[]
+  reservations  Reservation[]
+  messages      Message[]
+  referralsFrom Referral[] @relation("ReferralFrom")
+  referralsTo   Referral[] @relation("ReferralTo")
+}
+
+model Dish {
+  id         String   @id @default(cuid())
+  shopId     String
+  shop       Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  name       String
+  price      Int?
+  allergens  String[]
+  dietary    String[]
+  adjustable String[]
+  sortOrder  Int      @default(0)
+}
+
+// 空き状況データ（17-2）。日単位で管理し、時間は店舗の予約枠から選ぶ
+model Availability {
+  id               String             @id @default(cuid())
+  shopId           String
+  shop             Shop               @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  date             String // YYYY-MM-DD（日本時間）
+  status           AvailabilityStatus
+  conditions       String[] // △の条件コード
+  conditionNote    String? // 「その他の条件」の日本語自由記述
+  approvalDeadline DateTime
+  updatedAt        DateTime           @updatedAt
+
+  @@unique([shopId, date])
+}
+
+model CancellationPolicy {
+  id            String   @id @default(cuid())
+  code          String // STANDARD | STRICT
+  version       Int
+  // [{ hoursBefore: 24, ratePercent: 50 }, ...] hoursBefore 以内のキャンセルに ratePercent を適用
+  rules         Json
+  lateMinutes   Int      @default(10)
+  lateRule      String // LATE_HOLD | LATE_MAY_CANCEL
+  isProvisional Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  reservations Reservation[]
+
+  @@unique([code, version])
+}
+
+// 予約データ（17-3）
+model Reservation {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id])
+  shopId      String
+  shop        Shop              @relation(fields: [shopId], references: [id])
+  date        String
+  time        String
+  partySize   Int
+  dietary     String[]
+  allergies   String[]
+  message     String?
+  messageLang String?
+  messageJa   String?
+  status      ReservationStatus @default(PENDING)
+
+  // △条件への同意
+  conditionsAgreed   String[]
+  conditionNoteAgreed String?
+  conditionsAgreedAt DateTime?
+
+  // キャンセルポリシーへの同意
+  policyId       String
+  policy         CancellationPolicy @relation(fields: [policyId], references: [id])
+  policyVersion  Int
+  policyAgreedAt DateTime
+
+  respondBy  DateTime
+  approvedAt DateTime?
+  decidedAt  DateTime?
+  cancelledAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  messages Message[]
+
+  @@index([shopId, status])
+  @@index([userId])
+}
+
+// 予約前の問い合わせ・予約に関するやり取り（翻訳付き）
+model Message {
+  id             String        @id @default(cuid())
+  shopId         String
+  shop           Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  reservationId  String?
+  reservation    Reservation?  @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  sender         MessageSender
+  original       String
+  originalLang   String
+  translated     String?
+  translatedLang String
+  createdAt      DateTime      @default(now())
+
+  @@index([shopId, userId])
+}
+
+// 店舗紹介データ（17-4）
+model Referral {
+  id            String        @id @default(cuid())
+  fromShopId    String
+  fromShop      Shop          @relation("ReferralFrom", fields: [fromShopId], references: [id], onDelete: Cascade)
+  toShopId      String
+  toShop        Shop          @relation("ReferralTo", fields: [toShopId], references: [id], onDelete: Cascade)
+  message       String
+  createdAt     DateTime      @default(now())
+  // 紹介元は登録時点で同意済み。紹介先の掲載同意と運営確認を経て公開する
+  targetConsent ConsentStatus @default(PENDING)
+  reviewStatus  ReviewStatus  @default(PENDING)
+  isPublic      Boolean       @default(true)
+
+  @@unique([fromShopId, toShopId])
+}
+
+// 用語集（固定訳）
+model GlossaryTerm {
+  id   String  @id @default(cuid())
+  ja   String  @unique
+  en   String
+  zh   String
+  ko   String
+  fr   String
+  es   String
+  note String?
+}
+
+model TranslationCache {
+  id         String   @id @default(cuid())
+  sourceHash String
+  targetLang String
+  sourceText String
+  text       String
+  provider   String
+  createdAt  DateTime @default(now())
+
+  @@unique([sourceHash, targetLang])
+}
+
+// 翻訳品質・食品表示などの報告
+model Report {
+  id             String       @id @default(cuid())
+  kind           ReportKind
+  lang           String?
+  sourceText     String?
+  translatedText String?
+  context        String?
+  comment        String?
+  shopId         String?
+  userId         String?
+  user           User?        @relation(fields: [userId], references: [id])
+  status         ReportStatus @default(OPEN)
+  createdAt      DateTime     @default(now())
+}
+
+model ExchangeRate {
+  currency  String   @id
+  rate      Float // 1 JPY あたりの金額
+  fetchedAt DateTime
+}

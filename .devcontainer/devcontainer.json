@@ -1,0 +1,51 @@
+{
+  "name": "cango",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  // node_modules: Windows のバインドマウントは遅いため名前付きボリュームに置く
+  // Claude Code / Vercel CLI のログイン情報はリビルド後も残るようボリュームに保存する
+  "mounts": [
+    "source=cango-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
+    "source=kaib-claude,target=/home/node/.claude,type=volume",
+    "source=kaib-vercel,target=/home/node/.local/share/com.vercel.cli,type=volume"
+  ],
+
+  "containerEnv": {
+    "TZ": "Asia/Tokyo",
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude"
+  },
+
+  // 5173: Vite / 3000: vercel dev / 5555: Prisma Studio
+  "forwardPorts": [5173, 3000, 5555],
+  "portsAttributes": {
+    "5173": { "label": "Vite" },
+    "3000": { "label": "vercel dev" },
+    "5555": { "label": "Prisma Studio" }
+  },
+
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "Prisma.prisma",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "[prisma]": { "editor.defaultFormatter": "Prisma.prisma" },
+        "files.eol": "\n",
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+
+  "remoteUser": "node"
+}

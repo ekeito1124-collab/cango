@@ -1,7 +1,6 @@
 export default {
   'app.name': 'Cango',
   'app.tagline': 'Step into the everyday life of a Japanese town',
-  'app.demo': 'Demo: all shops shown are fictional sample data.',
 
   'nav.explore': 'Explore',
   'nav.plan': 'Half-day',
@@ -216,7 +215,7 @@ export default {
   'policy.version': 'Policy {code} v{v}',
   'policy.STANDARD': 'Standard',
   'policy.STRICT': 'Strict',
-  'policy.noCharge': 'Demo: no payment or fee is actually charged.',
+  'policy.noCharge': "No payment or cancellation fee is charged through the app.",
 
   'status.PENDING': 'Waiting for approval',
   'status.CONFIRMED': 'Confirmed',
@@ -237,7 +236,7 @@ export default {
   'res.cancel': 'Cancel this booking',
   'res.cancelConfirm': 'Cancel this booking? This cannot be undone.',
   'res.cancelled': 'Cancelled.',
-  'res.cancelFee': 'Under the policy, the fee would be {p}% (demo — not charged).',
+  'res.cancelFee': "Under the policy, the fee would be {p}% (not charged through the app).",
   'res.upcoming': 'Coming up',
   'res.past': 'Past and closed',
   'res.notConfirmed': 'Not confirmed',
@@ -262,8 +261,8 @@ export default {
   'auth.err.invalid_email': 'Please enter a valid email address.',
   'auth.err.invalid_token': 'This link is invalid or has expired.',
 
-  'card.title': 'Payment card (demo)',
-  'card.notice': 'Demo screen only. Card details are not sent, stored or charged. You can type any test numbers, e.g. 4242 4242 4242 4242.',
+  'card.title': "Payment card",
+  'card.notice': "Card details are not sent, stored or charged. Card payment is not available in the app yet.",
   'card.number': 'Card number',
   'card.expiry': 'Expiry (MM/YY)',
   'card.cvc': 'CVC',

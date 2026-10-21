@@ -1,7 +1,6 @@
 export default {
   'app.name': 'Cango',
   'app.tagline': 'Vive el día a día de un pueblo japonés',
-  'app.demo': 'Demo: todas las tiendas que se muestran son datos de ejemplo ficticios.',
 
   'nav.explore': 'Explorar',
   'nav.plan': 'Medio día',
@@ -216,7 +215,7 @@ export default {
   'policy.version': 'Política {code} v{v}',
   'policy.STANDARD': 'Estándar',
   'policy.STRICT': 'Estricta',
-  'policy.noCharge': 'Demo: no se cobra realmente ningún pago ni cargo.',
+  'policy.noCharge': "La app no cobra ningún pago ni tarifa de cancelación.",
 
   'status.PENDING': 'Pendiente de aprobación',
   'status.CONFIRMED': 'Confirmada',
@@ -237,7 +236,7 @@ export default {
   'res.cancel': 'Cancelar esta reserva',
   'res.cancelConfirm': '¿Cancelar esta reserva? No se puede deshacer.',
   'res.cancelled': 'Cancelada.',
-  'res.cancelFee': 'Según la política, el cargo sería del {p}% (demo; no se cobra).',
+  'res.cancelFee': "Según la política, la tarifa sería del {p}% (la app no la cobra).",
   'res.upcoming': 'Próximas',
   'res.past': 'Pasadas y cerradas',
   'res.notConfirmed': 'Sin confirmar',
@@ -262,8 +261,8 @@ export default {
   'auth.err.invalid_email': 'Introduce un correo electrónico válido.',
   'auth.err.invalid_token': 'Este enlace no es válido o ha caducado.',
 
-  'card.title': 'Tarjeta de pago (demo)',
-  'card.notice': 'Pantalla solo de demostración. Los datos de la tarjeta no se envían, no se guardan ni se cobran. Puedes escribir cualquier número de prueba, p. ej. 4242 4242 4242 4242.',
+  'card.title': "Tarjeta de pago",
+  'card.notice': "Los datos de la tarjeta no se envían, guardan ni cobran. El pago con tarjeta aún no está disponible en la app.",
   'card.number': 'Número de tarjeta',
   'card.expiry': 'Vencimiento (MM/AA)',
   'card.cvc': 'CVC',

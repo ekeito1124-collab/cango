@@ -1,7 +1,6 @@
 export default {
   'app.name': 'Cango',
   'app.tagline': '일본 동네의 일상 속으로 들어가 보세요',
-  'app.demo': '데모: 표시된 가게는 모두 가상의 샘플 데이터예요.',
 
   'nav.explore': '둘러보기',
   'nav.plan': '반나절 코스',
@@ -216,7 +215,7 @@ export default {
   'policy.version': '정책 {code} v{v}',
   'policy.STANDARD': '표준',
   'policy.STRICT': '엄격',
-  'policy.noCharge': '데모: 실제로 결제나 수수료가 청구되지 않아요.',
+  'policy.noCharge': "앱에서는 결제나 취소 수수료가 청구되지 않아요.",
 
   'status.PENDING': '승인 대기 중',
   'status.CONFIRMED': '확정',
@@ -237,7 +236,7 @@ export default {
   'res.cancel': '이 예약 취소',
   'res.cancelConfirm': '이 예약을 취소할까요? 되돌릴 수 없어요.',
   'res.cancelled': '취소됐어요.',
-  'res.cancelFee': '정책에 따르면 수수료는 {p}%예요 (데모 — 청구되지 않음).',
+  'res.cancelFee': "정책에 따라 취소 수수료는 {p}%예요(앱에서는 청구되지 않아요).",
   'res.upcoming': '예정',
   'res.past': '지난 예약·종료',
   'res.notConfirmed': '미확정',
@@ -262,8 +261,8 @@ export default {
   'auth.err.invalid_email': '올바른 이메일 주소를 입력해 주세요.',
   'auth.err.invalid_token': '링크가 유효하지 않거나 만료됐어요.',
 
-  'card.title': '결제 카드 (데모)',
-  'card.notice': '데모 화면일 뿐이에요. 카드 정보는 전송·저장·청구되지 않아요. 아무 테스트 번호나 입력해도 돼요. 예: 4242 4242 4242 4242',
+  'card.title': "결제 카드",
+  'card.notice': "카드 정보는 전송·저장·청구되지 않아요. 앱에서의 카드 결제는 아직 이용할 수 없어요.",
   'card.number': '카드 번호',
   'card.expiry': '유효기간 (MM/YY)',
   'card.cvc': 'CVC',

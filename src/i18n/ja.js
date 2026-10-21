@@ -1,7 +1,6 @@
 export default {
   'app.name': 'Cango',
   'app.tagline': '日本の町の日常へ、一歩ふみ込もう',
-  'app.demo': 'デモ：表示されている店舗はすべて架空のサンプルデータです。',
 
   'nav.explore': 'さがす',
   'nav.plan': '半日プラン',
@@ -216,7 +215,7 @@ export default {
   'policy.version': 'ポリシー {code} v{v}',
   'policy.STANDARD': '標準',
   'policy.STRICT': '厳格',
-  'policy.noCharge': 'デモ：実際の支払いや料金の請求は発生しません。',
+  'policy.noCharge': "アプリ上での支払いやキャンセル料の請求は発生しません。",
 
   'status.PENDING': '承認待ち',
   'status.CONFIRMED': '確定',
@@ -237,7 +236,7 @@ export default {
   'res.cancel': 'この予約をキャンセル',
   'res.cancelConfirm': 'この予約をキャンセルしますか？元に戻すことはできません。',
   'res.cancelled': 'キャンセルしました。',
-  'res.cancelFee': 'ポリシーにより、キャンセル料は{p}%となります（デモのため請求はされません）。',
+  'res.cancelFee': "ポリシーにより、キャンセル料は{p}%となります（アプリ上での請求はありません）。",
   'res.upcoming': '今後の予定',
   'res.past': '過去・終了',
   'res.notConfirmed': '未確定',
@@ -262,8 +261,8 @@ export default {
   'auth.err.invalid_email': '有効なメールアドレスを入力してください。',
   'auth.err.invalid_token': 'このリンクは無効か、有効期限が切れています。',
 
-  'card.title': '支払いカード（デモ）',
-  'card.notice': 'デモ用の画面です。カード情報は送信・保存・請求されません。4242 4242 4242 4242 など、任意のテスト番号を入力できます。',
+  'card.title': "支払いカード",
+  'card.notice': "カード情報は送信・保存・請求されません。アプリでのカード決済はまだご利用いただけません。",
   'card.number': 'カード番号',
   'card.expiry': '有効期限（MM/YY）',
   'card.cvc': 'CVC',

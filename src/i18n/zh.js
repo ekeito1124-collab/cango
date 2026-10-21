@@ -1,7 +1,6 @@
 export default {
   'app.name': 'Cango',
   'app.tagline': '走进日本小镇的日常生活',
-  'app.demo': '演示版：显示的所有店铺均为虚构的示例数据。',
 
   'nav.explore': '探索',
   'nav.plan': '半日游',
@@ -216,7 +215,7 @@ export default {
   'policy.version': '政策 {code} v{v}',
   'policy.STANDARD': '标准',
   'policy.STRICT': '严格',
-  'policy.noCharge': '演示版：不会实际收取任何付款或费用。',
+  'policy.noCharge': "应用内不会产生任何付款或取消费用。",
 
   'status.PENDING': '等待批准',
   'status.CONFIRMED': '已确认',
@@ -237,7 +236,7 @@ export default {
   'res.cancel': '取消此预约',
   'res.cancelConfirm': '确定取消此预约吗？此操作无法撤销。',
   'res.cancelled': '已取消。',
-  'res.cancelFee': '根据政策，费用为 {p}%（演示版，不会实际收取）。',
+  'res.cancelFee': "根据政策，取消费用为{p}%（应用内不会收取）。",
   'res.upcoming': '即将到来',
   'res.past': '过往及已结束',
   'res.notConfirmed': '未确认',
@@ -262,8 +261,8 @@ export default {
   'auth.err.invalid_email': '请输入有效的电子邮箱地址。',
   'auth.err.invalid_token': '此链接无效或已过期。',
 
-  'card.title': '支付卡（演示）',
-  'card.notice': '仅为演示界面。卡片信息不会被发送、存储或扣款。你可以输入任意测试卡号，例如 4242 4242 4242 4242。',
+  'card.title': "支付卡",
+  'card.notice': "卡信息不会被发送、保存或扣款。应用暂不支持刷卡支付。",
   'card.number': '卡号',
   'card.expiry': '有效期（MM/YY）',
   'card.cvc': 'CVC',

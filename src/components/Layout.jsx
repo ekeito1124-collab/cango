@@ -59,7 +59,6 @@ export default function Layout() {
           </select>
         </div>
       </header>
-      <p className="demo-banner">{t('app.demo')}</p>
       <main className="content">
         <ErrorBoundary
           key={location.pathname}

@@ -1,7 +1,6 @@
 export default {
   'app.name': "Cango",
   'app.tagline': "Plongez dans le quotidien d'une ville japonaise",
-  'app.demo': "Démo : toutes les boutiques affichées sont des exemples fictifs.",
 
   'nav.explore': "Explorer",
   'nav.plan': "Demi-journée",
@@ -216,7 +215,7 @@ export default {
   'policy.version': "Politique {code} v{v}",
   'policy.STANDARD': "Standard",
   'policy.STRICT': "Stricte",
-  'policy.noCharge': "Démo : aucun paiement ni frais n'est réellement prélevé.",
+  'policy.noCharge': "Aucun paiement ni frais d'annulation n'est facturé via l'application.",
 
   'status.PENDING': "En attente d'approbation",
   'status.CONFIRMED': "Confirmée",
@@ -237,7 +236,7 @@ export default {
   'res.cancel': "Annuler cette réservation",
   'res.cancelConfirm': "Annuler cette réservation ? Cette action est irréversible.",
   'res.cancelled': "Annulée.",
-  'res.cancelFee': "Selon la politique, les frais seraient de {p} % (démo — non prélevés).",
+  'res.cancelFee': "Selon la politique, les frais seraient de {p}% (non facturés via l'application).",
   'res.upcoming': "À venir",
   'res.past': "Passées et clôturées",
   'res.notConfirmed': "Non confirmée",
@@ -262,8 +261,8 @@ export default {
   'auth.err.invalid_email': "Veuillez saisir une adresse e-mail valide.",
   'auth.err.invalid_token': "Ce lien est invalide ou a expiré.",
 
-  'card.title': "Carte de paiement (démo)",
-  'card.notice': "Écran de démonstration uniquement. Les données de carte ne sont ni envoyées, ni stockées, ni débitées. Vous pouvez saisir n'importe quel numéro de test, par ex. 4242 4242 4242 4242.",
+  'card.title': "Carte de paiement",
+  'card.notice': "Les données de carte ne sont ni envoyées, ni enregistrées, ni débitées. Le paiement par carte n'est pas encore disponible dans l'application.",
   'card.number': "Numéro de carte",
   'card.expiry': "Expiration (MM/AA)",
   'card.cvc': "CVC",

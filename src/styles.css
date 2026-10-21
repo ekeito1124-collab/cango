@@ -123,13 +123,6 @@ blockquote {
   font-size: 0.9rem;
   opacity: 0.9;
 }
-.demo-banner {
-  margin: 0;
-  padding: 0.35rem 16px;
-  background: var(--warn-bg);
-  font-size: 0.8rem;
-  color: #6b4c00;
-}
 .tabbar {
   position: fixed;
   left: 0;

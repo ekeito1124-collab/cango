@@ -40,16 +40,6 @@ npm run dev                    # http://localhost:5173 （Vite だけで API も
 | `RESEND_API_KEY`, `MAIL_FROM` | 任意 | メール送信（パスワード再設定・事業者への通知）。未設定ならサーバーログに出力のみ。ローカルではパスワード再設定リンクが画面に表示される |
 | `APP_URL` | 任意 | メール内リンクのベース URL |
 
-### デモアカウント（シード後）
-
-パスワードは `SEED_PASSWORD` で指定します。未設定の場合はシード実行時にランダムに作られ、その場で一度だけ表示されます。すでにあるアカウントのパスワードは変わりません。
-
-- 旅行者：`traveler@example.com`
-- 事業者：`owner+<店舗slug>@example.com`（例：`owner+maruyoshi-shokudo@example.com`）
-- 運営：`admin@example.com`
-
-表示されたパスワードは、他の人に見られない場所に控えてください。
-
 ### 自動翻訳のキーを入れたあと
 
 運営画面（`/admin`）の「自動翻訳（Gemini）」で、キーが読み込まれているか・直近のエラーを確認できます。
